@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cury Leads</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; padding: 1rem; }
+  .app { max-width: 680px; margin: 0 auto; padding: 1rem 0; }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; color: #1a1a1a; }
+  h1 span { color: #888; font-weight: 400; font-size: 14px; margin-left: 8px; }
+  .section { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .section-title { font-size: 11px; font-weight: 500; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  input[type=text], input[type=password], textarea, select {
+    width: 100%; font-size: 13px; padding: 8px 10px;
+    border: 0.5px solid rgba(0,0,0,0.2); border-radius: 8px;
+    background: #fafafa; color: #1a1a1a; font-family: inherit;
+  }
+  input[type=password] { font-family: monospace; }
+  textarea { min-height: 140px; resize: vertical; font-family: monospace; }
+  input:focus, textarea:focus { outline: none; border-color: #4a90d9; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px; font-weight: 500; border: 0.5px solid rgba(0,0,0,0.2); border-radius: 8px; background: transparent; color: #1a1a1a; cursor: pointer; transition: background 0.15s; font-family: inherit; }
+  .btn:hover { background: #f0f0f0; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-primary { background: #e8f0fb; color: #1a5fb4; border-color: #a8c4f0; }
+  .btn-primary:hover { background: #d0e4f7; }
+  .btn-success { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+  .btn-success:hover { background: #d4edda; }
+  .btn-google { background: #fff; border-color: rgba(0,0,0,0.2); }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .status { font-size: 12px; color: #666; padding: 4px 0; min-height: 20px; }
+  .status.error { color: #c0392b; }
+  .status.success { color: #2e7d32; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
+  .badge-alta { background: #fff3e0; color: #e65100; }
+  .badge-normal { background: #f0f0f0; color: #666; }
+  .table-wrap { overflow-x: auto; margin-top: 10px; }
+  table { width: 100%; font-size: 12px; border-collapse: collapse; table-layout: fixed; }
+  th { text-align: left; padding: 6px 8px; background: #f8f8f8; color: #666; font-weight: 500; border-bottom: 0.5px solid #e0e0e0; }
+  td { padding: 6px 8px; border-bottom: 0.5px solid #f0f0f0; color: #1a1a1a; word-break: break-word; }
+  tr:last-child td { border-bottom: none; }
+  .col-name { width: 22%; } .col-phone { width: 16%; } .col-email { width: 28%; } .col-loc { width: 20%; } .col-pri { width: 14%; }
+  .info { font-size: 11px; color: #888; margin-top: 6px; line-height: 1.5; }
+  .connected { color: #2e7d32; font-size: 12px; font-weight: 500; }
+  .token-box { margin-top: 10px; display: none; }
+  .token-box input { font-family: monospace; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Cury Leads <span>portal de contactos</span></h1>
+
+  <div class="section">
+    <div class="section-title">1 — configuração</div>
+    <div class="label">Anthropic API key</div>
+    <div style="display:flex; gap:8px;">
+      <input type="password" id="apiKey" placeholder="sk-ant-..." style="flex:1; font-family:monospace; font-size:12px;" />
+      <button class="btn" onclick="saveKey()">✓ Salvar</button>
+    </div>
+    <div class="status" id="keyStatus"></div>
+
+    <div style="margin-top:14px;">
+      <div class="label">Google Drive</div>
+      <div class="row" style="margin-top:4px;">
+        <button class="btn btn-google" id="authBtn" onclick="doGoogleAuth()">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Conectar Google Drive
+        </button>
+        <span class="connected" id="authConnected" style="display:none;">✓ conectado</span>
+      </div>
+      <div class="info">Clique para autorizar — abre o Google numa nova janela. Depois cole o token abaixo.</div>
+      <div class="token-box" id="tokenBox">
+        <div class="label" style="margin-top:8px;">Cole o token da URL aqui (access_token=...&amp;)</div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="tokenInput" placeholder="ya29.a0..." />
+          <button class="btn" onclick="saveToken()">✓ OK</button>
+        </div>
+      </div>
+      <div class="status" id="authStatus"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2 — colar leads</div>
+    <div class="label" style="margin-bottom:6px;">Cole aqui o texto (WhatsApp, transcrição, etc.)</div>
+    <textarea id="rawInput" placeholder="Exemplo:
+Felipe Barreto  +5521995539834  fg.barretoguilherme@gmail.com  Caminhos da Guanabara
+Novo Lead — Portal Cury Vendas
+Maria Silva  21987654321  Niterói"></textarea>
+    <div class="row">
+      <button class="btn btn-primary" onclick="parseLeads()" id="parseBtn">✦ Analisar com Claude</button>
+      <div class="status" id="parseStatus"></div>
+    </div>
+  </div>
+
+  <div class="section" id="previewSection" style="display:none;">
+    <div class="section-title">3 — pré-visualização</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span id="previewMeta" style="font-size:12px; color:#666;"></span>
+      <button class="btn" onclick="clearPreview()" style="font-size:12px; padding:4px 10px;">✕ Limpar</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th class="col-name">Nome</th>
+          <th class="col-phone">Telefone</th>
+          <th class="col-email">Email</th>
+          <th class="col-loc">Localização</th>
+          <th class="col-pri">Prioridade</th>
+        </tr></thead>
+        <tbody id="previewBody"></tbody>
+      </table>
+    </div>
+    <div class="row" style="margin-top:12px;">
+      <button class="btn btn-success" onclick="uploadToSheets()" id="uploadBtn">↑ Salvar no Google Drive</button>
+      <div class="status" id="uploadStatus"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const FOLDER_ID = '1zdXYLMWFsjjsHYYuZAO6HJBB78cZFe5o';
+const CLIENT_ID = '183336252219-m35kek40sfhg7dmeodhle7b2p7u63p8c.apps.googleusercontent.com';
+const REDIRECT_URI = 'https://jazzdinosaur.github.io/cury-leads/';
+const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
+
+let gToken = null;
+let parsedRows = [];
+
+function saveKey() {
+  const k = document.getElementById('apiKey').value.trim();
+  if (!k.startsWith('sk-')) { setStatus('keyStatus', 'Chave inválida — deve começar com sk-ant-', 'error'); return; }
+  sessionStorage.setItem('ak', k);
+  setStatus('keyStatus', '✓ Chave guardada para esta sessão.', 'success');
+}
+
+function getKey() { return sessionStorage.getItem('ak') || document.getElementById('apiKey').value.trim(); }
+
+function setStatus(id, msg, cls) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'status' + (cls ? ' ' + cls : '');
+}
+
+function doGoogleAuth() {
+  const state = Math.random().toString(36).slice(2);
+  sessionStorage.setItem('oauth_state', state);
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'token',
+    scope: SCOPES,
+    state: state,
+    prompt: 'consent'
+  });
+  window.open('https://accounts.google.com/o/oauth2/v2/auth?' + params.toString(), '_blank');
+  document.getElementById('tokenBox').style.display = 'block';
+  setStatus('authStatus', 'Autorize no Google e cole o token da URL de retorno.');
+}
+
+function saveToken() {
+  let raw = document.getElementById('tokenInput').value.trim();
+  let token = null;
+  try {
+    const url = raw.includes('://') ? new URL(raw) : new URL('https://x.com/?' + raw);
+    const hash = url.hash ? new URLSearchParams(url.hash.slice(1)) : null;
+    const search = url.searchParams;
+    token = (hash && hash.get('access_token')) || search.get('access_token') || raw;
+  } catch(e) { token = raw; }
+  if (!token || token.length < 10) { setStatus('authStatus', 'Token inválido.', 'error'); return; }
+  gToken = token;
+  document.getElementById('authConnected').style.display = 'inline';
+  document.getElementById('tokenBox').style.display = 'none';
+  setStatus('authStatus', '✓ Google Drive conectado.', 'success');
+}
+
+function cleanPhone(raw) {
+  if (!raw) return '';
+  let p = String(raw).replace(/[+\s'\(\)\-]/g, '');
+  if (p.startsWith('55') && p.length > 11) p = p.slice(2);
+  return p;
+}
+
+function detectPriority(text) {
+  const t = text.toLowerCase();
+  return (t.includes('novo lead') || t.includes('portal cury') || t.includes('prioridade')) ? 'Alta' : 'Normal';
+}
+
+async function parseLeads() {
+  const raw = document.getElementById('rawInput').value.trim();
+  if (!raw) { setStatus('parseStatus', 'Cole algum texto primeiro.', 'error'); return; }
+  const key = getKey();
+  if (!key.startsWith('sk-')) { setStatus('parseStatus', 'Cole a chave API primeiro.', 'error'); return; }
+
+  const priority = detectPriority(raw);
+  setStatus('parseStatus', 'A analisar…');
+  document.getElementById('parseBtn').disabled = true;
+
+  const prompt = `You are a data extraction assistant. Extract contact leads from the raw text below.
+Return ONLY a JSON array, no markdown, no explanation. Each object must have these exact keys: name, phone, email, location.
+
+Rules:
+- phone: remove +, spaces, apostrophes, hyphens, parentheses. If number starts with 55 AND has more than 11 digits total after cleaning, strip the leading 55. Otherwise leave as-is.
+- email: extract if present, else empty string
+- location: extract if present, else empty string
+- Skip metadata lines (e.g. "Novo Lead", "Portal Cury Vendas", dates, email footers, forwarding headers)
+- Deduplicate by phone number
+
+Raw text:
+${raw}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    let text = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    text = text.replace(/```json|```/g, '').trim();
+    const rows = JSON.parse(text);
+    parsedRows = rows.map(r => ({ ...r, phone: cleanPhone(r.phone), priority }));
+    renderPreview(parsedRows);
+    setStatus('parseStatus', `${parsedRows.length} contacto${parsedRows.length !== 1 ? 's' : ''} encontrado${parsedRows.length !== 1 ? 's' : ''}.`, 'success');
+  } catch(e) {
+    setStatus('parseStatus', 'Erro: ' + e.message, 'error');
+  }
+  document.getElementById('parseBtn').disabled = false;
+}
+
+function renderPreview(rows) {
+  const tbody = document.getElementById('previewBody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.name||''}</td><td>${r.phone||''}</td><td style="font-size:11px">${r.email||''}</td><td>${r.location||''}</td><td><span class="badge badge-${(r.priority||'Normal').toLowerCase()}">${r.priority||'Normal'}</span></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('previewMeta').textContent = `${rows.length} linha${rows.length!==1?'s':''} · prioridade ${rows[0]?.priority||'Normal'}`;
+  document.getElementById('previewSection').style.display = 'block';
+}
+
+function clearPreview() {
+  parsedRows = [];
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('rawInput').value = '';
+  setStatus('parseStatus', '');
+  setStatus('uploadStatus', '');
+}
+
+function ptDate() {
+  const months = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const d = new Date();
+  return `Leads - ${d.getDate()} de ${months[d.getMonth()]} de ${d.getFullYear()}`;
+}
+
+async function uploadToSheets() {
+  if (!parsedRows.length) return;
+  if (!gToken) { setStatus('uploadStatus', 'Conecte o Google Drive primeiro.', 'error'); return; }
+  const title = ptDate();
+  setStatus('uploadStatus', 'A criar folha…');
+  document.getElementById('uploadBtn').disabled = true;
+  try {
+    const createRes = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${gToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ properties: { title }, sheets: [{ properties: { title: 'Leads' } }] })
+    });
+    const sheet = await createRes.json();
+    if (!createRes.ok) throw new Error(sheet.error?.message || 'Erro ao criar folha');
+    const sid = sheet.spreadsheetId;
+
+    const header = ['Nome','Telefone','Email','Localização','Prioridade'];
+    const values = [header, ...parsedRows.map(r => [r.name||'', r.phone||'', r.email||'', r.location||'', r.priority||'Normal'])];
+    const updateRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A1:E${values.length}?valueInputOption=RAW`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${gToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values })
+    });
+    if (!updateRes.ok) { const e = await updateRes.json(); throw new Error(e.error?.message); }
+
+    const moveRes = await fetch(`https://www.googleapis.com/drive/v3/files/${sid}?addParents=${FOLDER_ID}&removeParents=root&fields=id,parents`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${gToken}`, 'Content-Type': 'application/json' }
+    });
+    if (!moveRes.ok) { const e = await moveRes.json(); throw new Error(e.error?.message); }
+
+    setStatus('uploadStatus', `✓ Guardado como "${title}" na pasta da Darla.`, 'success');
+  } catch(e) {
+    setStatus('uploadStatus', 'Erro: ' + e.message, 'error');
+  }
+  document.getElementById('uploadBtn').disabled = false;
+}
+
+// Check if returning from Google OAuth redirect
+(function() {
+  const hash = new URLSearchParams(window.location.hash.slice(1));
+  const token = hash.get('access_token');
+  const state = hash.get('state');
+  if (token) {
+    gToken = token;
+    document.getElementById('authConnected').style.display = 'inline';
+    setStatus('authStatus', '✓ Google Drive conectado.', 'success');
+    window.history.replaceState(null, '', window.location.pathname);
+  }
+})();
+</script>
+</body>
+</html>
